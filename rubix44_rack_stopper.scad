@@ -19,8 +19,10 @@ front_margin = 5;          // Rubix44 前面がトレイ前端から少し奥ま
 block_depth = tray_depth - rubix44_depth - front_margin;  // ~103.8mm
 
 block_width = 200;         // ブロック幅 (3Dプリンタベッドに合わせて調整可能)
-block_height = 12;         // ブロック高さ (背面ケーブルに干渉しない高さ)
-                           // Rubix44背面コネクタ(USB/TRS/MIDI)は底面から約15mm以上の位置
+block_height = 8;          // ブロック高さ (背面ケーブルに干渉しない高さ)
+                           // Rubix44背面コネクタ(USB/TRS/MIDI)の下端は底面から約10-15mm
+                           // ケーブルプラグの太さも考慮し安全マージンを確保
+                           // 実測で余裕があれば 10-12mm に上げても可
 
 // 軽量化用の肉抜き設定
 enable_hollowing = true;   // 肉抜きを有効にする

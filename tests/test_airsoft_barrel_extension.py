@@ -27,6 +27,16 @@ class AirsoftBarrelExtensionContractTest(unittest.TestCase):
         self.assertEqual(float(self.value("female_thread_depth")), 10.0)
         self.assertEqual(float(self.value("thread_clearance")), 0.25)
 
+    def test_thread_crest_is_at_least_one_nozzle_wide(self):
+        nozzle_diameter = float(self.value("nozzle_diameter"))
+        thread_crest_width = float(self.value("thread_crest_width"))
+
+        self.assertEqual(nozzle_diameter, 0.4)
+        self.assertGreaterEqual(thread_crest_width, nozzle_diameter)
+        self.assertIn(
+            "assert(thread_crest_width >= nozzle_diameter", self.source
+        )
+
     def test_basic_module_boundary(self):
         self.assertIn("module adapter_body()", self.source)
         self.assertIn("assert(extension_length >= female_thread_depth", self.source)
@@ -45,11 +55,26 @@ class AirsoftBarrelExtensionContractTest(unittest.TestCase):
             re.search(r"^\s*(use|include)\s*<", self.source, re.MULTILINE)
         )
 
-    def test_left_hand_twist_is_negative(self):
-        self.assertRegex(
+    def test_left_hand_thread_uses_axial_helix_mesh(self):
+        self.assertNotIn("linear_extrude(", self.source)
+        self.assertIn("polyhedron(points = points, faces = faces", self.source)
+        self.assertIn("angle = -360 * i / slices_per_turn", self.source)
+        self.assertIn("center_z = start_z + i * pitch / slices_per_turn", self.source)
+
+    def test_helix_caps_reverse_the_side_boundary_edges(self):
+        self.assertIn("start_face = [0, 1, 2, 3]", self.source)
+        self.assertIn(
+            "end_face = [last_vertex + 3, last_vertex + 2, "
+            "last_vertex + 1, last_vertex]",
             self.source,
-            r"linear_extrude\([^)]*twist\s*=\s*-360\s*\*\s*length\s*/\s*pitch",
         )
+
+    def test_helix_side_faces_are_explicit_triangles(self):
+        self.assertIn("each [[a, b, c], [a, c, d]]", self.source)
+
+    def test_thread_mesh_is_clipped_to_requested_length(self):
+        self.assertIn("clip_height = length", self.source)
+        self.assertIn("cylinder(h = clip_height, r = crest_radius + 0.01)", self.source)
 
     def test_adapter_has_through_bore_and_both_threads(self):
         barrel = re.search(

@@ -1,0 +1,10 @@
+{
+  "name": "mv44-jscad-plate",
+  "private": true,
+  "scripts": { "build": "node build.js" },
+  "dependencies": {
+    "@jscad/modeling": "2.13.0",
+    "@jscad/stl-serializer": "2.1.23",
+    "@jscad/svg-serializer": "2.3.21"
+  }
+}

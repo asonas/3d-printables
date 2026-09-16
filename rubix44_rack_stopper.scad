@@ -16,9 +16,10 @@ rubix44_height = 46;       // Rubix44 高さ
 
 // ブロック設定
 front_margin = 5;          // Rubix44 前面がトレイ前端から少し奥まる余白 (mm)
-block_depth = tray_depth - rubix44_depth - front_margin;  // ~103.8mm
+depth_extension = 17;      // 奥行きの追加分 (mm)
+block_depth = tray_depth - rubix44_depth - front_margin + depth_extension;  // ~120.8mm
 
-block_width = 200;         // ブロック幅 (3Dプリンタベッドに合わせて調整可能)
+block_width = 50;          // ブロック幅 (mm)
 block_height = 8;          // ブロック高さ (背面ケーブルに干渉しない高さ)
                            // Rubix44背面コネクタ(USB/TRS/MIDI)の下端は底面から約10-15mm
                            // ケーブルプラグの太さも考慮し安全マージンを確保

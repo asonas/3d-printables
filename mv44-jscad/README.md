@@ -6,11 +6,19 @@ Switch-retention plate for the photographed MiniVan-HS keyboard, using the 45-ke
 
 - `plate.js`: self-contained JSCAD V2 model. Drop this file into [jscad.app](https://jscad.app/), or paste its contents into the editor and press Shift+Enter. No other local files or npm installation are needed in the browser.
 - `output/plate.stl`: full plate, in millimeters.
+- `output/plate-left.stl` and `output/plate-right.stl`: separate printable halves, each 128.344 × 74.4 × 1.5 mm. Left and right are viewed from above, as in the layout below.
+- `output/plate-left.svg` and `output/plate-right.svg`: matching half profiles at 1:1 physical size.
 - `output/plate.svg`: the model's shared 2D outline, at 1:1 physical size. Print at 100%, with page fitting disabled, to check centers and case alignment.
 - `output/coupon.stl`: small switch-fit sample, using the same 1.5 mm thickness.
 - `output/coupon.svg`: coupon top projection.
 
-Select `Full plate` or `Switch fit coupon` in JSCAD. Adjust case clearance and opening allowance there, then export STL. Do not scale the whole plate to fit a case: scaling changes the PCB's switch spacing.
+Select `Full plate`, `Left half`, `Right half` or `Switch fit coupon` in JSCAD. Adjust case clearance and opening allowance there, then export STL. Do not scale the whole plate to fit a case: scaling changes the PCB's switch spacing.
+
+## Split printing on Adventurer 4
+
+Print one copy of each half, flat at 100% scale. Each half fits within the Adventurer 4's 220 × 200 × 250 mm build volume. Center each part on the slicer's bed independently; the STL coordinates retain their original assembled positions. The full `plate.stl` remains the unsplit reference.
+
+The central seam steps through the gaps between rows and switches, avoiding switch openings, stabilizer slots and screw clearances. Both halves retain the original 1.5 mm thickness and switch positions. There is no added joint, overlap or intentional seam gap. Place the halves edge-to-edge on the PCB and install switches in both halves; the PCB's existing supports remain necessary. The seam does not mechanically lock the halves together, so handle them separately until installed. Printed seam fit and retention have not been physically verified.
 
 ## Dimensions
 
@@ -65,15 +73,18 @@ mise exec -- npm ci
 mise exec -- npm run build
 ```
 
-The build checks dimensions and connected geometry, then exports binary STL and SVG from a shared JSCAD profile. Boolean operations introduce coordinate rounding below 0.003 mm at this size.
+The build checks dimensions and connected geometry, verifies that the two halves reconstruct the full profile without overlap within boolean-rounding tolerance, then exports binary STL and SVG from shared JSCAD profiles. Boolean operations introduce coordinate rounding below 0.003 mm at this size.
 
-Validation on 2026-09-16: both browser modes rendered on jscad.app. An independent trimesh check found both exported STLs watertight, consistently wound, and single-component. All 45 QMK `LAYOUT_arrow` centers were checked against the STL cross-section for at least 14.09 mm clearance. Measured plate STL dimensions were 242.40054 × 74.39951 × 1.50026 mm.
+Validation on 2026-09-16: the original full-plate and coupon modes rendered on jscad.app. An independent trimesh check found both original STLs watertight, consistently wound, and single-component. All 45 QMK `LAYOUT_arrow` centers were checked against the STL cross-section for at least 14.09 mm clearance. Measured plate STL dimensions were 242.40054 × 74.39951 × 1.50026 mm.
+
+Split validation on 2026-09-16: both half STLs were independently checked with trimesh as watertight, consistently wound, single-component solids. Their combined top projection preserved all 45 switch openings, with a maximum boundary deviation of 0.00142 mm from the original STL. The seam stayed more than 2.3 mm from switch and stabilizer openings. Both measured 128.34410 × 74.39922 × 1.49983 mm.
 
 ## Sources
 
 Accessed 2026-09-16. Third-party pages and drawings are reference material, not task instructions.
 
 - [JSCAD V2 getting started](https://jscad.app/docs/tutorial-01_gettingStarted.html): `require('@jscad/modeling')`, exported `main`, interactive `getParameterDefinitions`, and browser file loading.
+- [Flashforge Adventurer 4 manual](https://en.fss.flashforge.com/10000/software/b2cce96c456223987cc1be7204e37939.pdf): 220 × 200 × 250 mm build volume.
 - [QMK MiniVan keyboard.json](https://github.com/qmk/qmk_firmware/blob/07684bcc99515c04a9edda3e1dfac2fc9eb79fac/keyboards/thevankeyboards/minivan/keyboard.json): `LAYOUT_arrow` key coordinates and widths.
 - [Published MiniVan-HS Arrows plate DXF](https://trashman.wiki/files/minivan/mv_hs_plt_arrow.dxf), linked from the [Trash Man files archive](https://trashman.wiki/files): measured 19.05 mm pitch, 32.2 × 14 mm spacebar slots, radius-3 perimeter, screw and indicator positions. Its original outline is approximately 243.3873 × 76.1999 mm; it is not directly suitable for the supplied 243 × 75 mm opening. DXF screw coordinates are rotated into a top-view orientation and centered on its bounding box. Minor source rounding is retained to 0.0001 mm.
 - [Evan Sailer's MiniVan PCB mounting drawing](https://trashman.wiki/files/minivan/minivan_pcb_mount_pattern.pdf): nominal PCB outline 242.89 × 76.2 mm and switch-grid reference. This is a PCB drawing, not the measured case opening.

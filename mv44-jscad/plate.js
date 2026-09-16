@@ -1,8 +1,8 @@
 // MiniVan-HS Arrows plate. All dimensions are millimeters.
 // Sources and fit assumptions: README.md in this directory.
 const { booleans, extrusions, modifiers, primitives, transforms } = require('@jscad/modeling')
-const { subtract } = booleans
-const { rectangle, roundedRectangle, circle } = primitives
+const { subtract, intersect } = booleans
+const { rectangle, roundedRectangle, circle, polygon } = primitives
 const { translate } = transforms
 
 const PITCH = 19.05
@@ -21,7 +21,7 @@ const SCREWS = [
 ]
 
 const getParameterDefinitions = () => [
-  { name: 'part', type: 'choice', values: ['plate', 'coupon'], captions: ['Full plate', 'Switch fit coupon'], initial: 'plate', caption: 'Part' },
+  { name: 'part', type: 'choice', values: ['plate', 'plate-left', 'plate-right', 'coupon'], captions: ['Full plate', 'Left half', 'Right half', 'Switch fit coupon'], initial: 'plate', caption: 'Part' },
   { name: 'clearance', type: 'float', initial: 0.3, min: 0.1, max: 0.6, step: 0.1, caption: 'Case clearance per side (mm)' },
   { name: 'allowance', type: 'float', initial: 0.1, min: 0, max: 0.3, step: 0.05, caption: 'Switch opening allowance, total (mm)' }
 ]
@@ -34,7 +34,7 @@ const createProfile = (params = {}) => {
   if (!Number.isFinite(p.allowance) || p.allowance < 0 || p.allowance > 0.3) {
     throw new Error('Switch opening allowance must be between 0 and 0.3 mm.')
   }
-  if (!['plate', 'coupon'].includes(p.part)) throw new Error('Unknown part.')
+  if (!['plate', 'plate-left', 'plate-right', 'coupon'].includes(p.part)) throw new Error('Unknown part.')
 
   if (p.part === 'coupon') {
     // The clipped upper-left corner identifies the 14.0 mm end.
@@ -65,7 +65,18 @@ const createProfile = (params = {}) => {
   // Three indicator light paths between the first four top-row switches.
   holes.push(...[1, 2, 3].map(x => translate([(x - 6.375) * PITCH, 1.5 * PITCH], circle({ radius: 0.75, segments: 24 }))))
   const outline = roundedRectangle({ size: [243 - 2 * p.clearance, 75 - 2 * p.clearance], roundRadius: 3, segments: 48 })
-  return subtract(outline, holes)
+  const plate = subtract(outline, holes)
+  if (p.part === 'plate') return plate
+
+  // Follow the gaps between switches, stepping only in the inter-row webs.
+  const leftMask = polygon({ points: [
+    [-130, -40], [-0.125 * PITCH, -40],
+    [-0.125 * PITCH, -PITCH], [0.375 * PITCH, -PITCH],
+    [0.375 * PITCH, 0], [-0.125 * PITCH, 0],
+    [-0.125 * PITCH, PITCH], [-0.375 * PITCH, PITCH],
+    [-0.375 * PITCH, 40], [-130, 40]
+  ] })
+  return p.part === 'plate-left' ? intersect(plate, leftMask) : subtract(plate, leftMask)
 }
 
 // Split T-junctions before serialization so every mesh edge has two faces.

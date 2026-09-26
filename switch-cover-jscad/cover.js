@@ -10,7 +10,9 @@ const defaultDimensions = {
   hookWidth: 3,
   hookProjection: 0.7,
   actuatorHeight: 6.5,
-  actuatorSpan: 3.6,
+  socketWidth: 2,
+  socketLength: 4,
+  actuatorClearance: 0.2,
   ribThickness: 0.8
 }
 
@@ -51,18 +53,23 @@ async function cap (dimensions = {}) {
     parts.push(arm.rotate([0, 0, angle]), hook.rotate([0, 0, angle]))
   }
 
-  // Four separate contact tips leave the switch's central opening unobstructed.
+  // Two contact tips fit inside the measured 2 x 4 mm switch socket.
   const tipThickness = 0.8
-  const tipCenter = (d.actuatorSpan - tipThickness) / 2
+  const tipWidth = d.socketWidth - 2 * d.actuatorClearance
+  const tipSpan = d.socketLength - 2 * d.actuatorClearance
+  const tipCenter = (tipSpan - tipThickness) / 2
   const ribStart = tipCenter - tipThickness / 2
   const ribEnd = radius - d.wall + 0.2
   for (const angle of [0, 90, 180, 270]) {
     const ribHeight = 3.2
     const rib = block([ribEnd - ribStart, d.ribThickness, ribHeight],
       [(ribStart + ribEnd) / 2, 0, d.faceThickness + ribHeight / 2 - 0.15])
-    const tip = block([tipThickness, 1.5, d.actuatorHeight - d.faceThickness + 0.2],
+    parts.push(rib.rotate([0, 0, angle]))
+  }
+  for (const angle of [0, 180]) {
+    const tip = block([tipThickness, tipWidth, d.actuatorHeight - d.faceThickness + 0.2],
       [tipCenter, 0, (d.actuatorHeight + d.faceThickness - 0.2) / 2])
-    parts.push(rib.rotate([0, 0, angle]), tip.rotate([0, 0, angle]))
+    parts.push(tip.rotate([0, 0, angle]))
   }
   const solid = Manifold.union(parts).simplify(0.005)
   if (solid.status() !== 'NoError') throw new Error(`Invalid solid: ${solid.status()}`)

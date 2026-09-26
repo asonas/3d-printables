@@ -7,6 +7,11 @@
     25.00000762939453,
     16.000085830688477
   ],
-  "volume_mm3": 1695.590919716602,
-  "physical_fit_verified": false
+  "volume_mm3": 1688.9681864910017,
+  "physical_fit_verified": false,
+  "central_tip_count_at_z6": 2,
+  "central_tip_envelope_xy_mm": [
+    3.6000585556030273,
+    1.6000759601593018
+  ]
 }

@@ -1,0 +1,9 @@
+{
+  "name": "tissue-holder-jscad",
+  "private": true,
+  "scripts": { "build": "node build.js" },
+  "dependencies": {
+    "@jscad/modeling": "2.13.0",
+    "@jscad/stl-serializer": "2.1.23"
+  }
+}
